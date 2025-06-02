@@ -22,6 +22,7 @@ export class HeroDetailComponent {
     private location: Location,
     private fb: FormBuilder
   ) {
+    // Инициализация формы с пустыми значениями
     this.heroForm = this.fb.group({
       name: [''],
       power: [''],
@@ -31,17 +32,23 @@ export class HeroDetailComponent {
       defense: ['']
     });
 
-    this.hero$ = this.route.paramMap.pipe(
+     // Создание потока hero$ на основе параметров маршрута
+     this.hero$ = this.route.paramMap.pipe(
+      // switchMap отменяет предыдущий запрос при новом ID
       switchMap(params => {
+        // Получаем ID героя из параметров маршрута
         const id = Number(params.get('id'));
+        // Запрашиваем героя по ID
         return this.heroService.getHero(id);
       })
     );
 
+    // Подписка на изменения hero$ для обновления формы
     this.hero$.subscribe(hero => {
+      // Заполнение формы данными героя
       this.heroForm.patchValue({
         name: hero.name,
-        power: hero.power || '',
+        power: hero.power || '', // Используем пустую строку если значение отсутствует
         level: hero.level || '',
         health: hero.health || '',
         attack: hero.attack || '',

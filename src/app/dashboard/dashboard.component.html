@@ -1,5 +1,10 @@
 <h3>Top Heroes</h3>
 <div class="grid grid-pad">
+  <!-- 
+    Цикл *ngFor для отображения каждого героя из потока heroes$ 
+    async pipe автоматически подписывается на Observable и отписывается
+    при уничтожении компонента
+  -->
   <a *ngFor="let hero of heroes$ | async" class="col-1-4" routerLink="/detail/{{hero.id}}">
     <div class="module hero">
       <h4>{{hero.name}}</h4>

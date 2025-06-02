@@ -11,18 +11,25 @@ import { switchMap, startWith } from 'rxjs/operators';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HeroesComponent {
+  // Observable поток для хранения списка героев
   heroes$: Observable<Hero[]>;
+  
+  // Subject для ручного триггера обновления данных
   private refresh$ = new Subject<void>();
 
+  // Конструктор с Dependency Injection
   constructor(private heroService: HeroService) {
+    // Инициализация потока heroes$
     this.heroes$ = this.refresh$.pipe(
+      // startWith запускает поток сразу при создании
       startWith(undefined),
+      // switchMap отменяет предыдущий запрос при новом обновлении
       switchMap(() => this.heroService.getHeroes())
     );
   }
 
   add(name: string): void {
-    name = name.trim();
+    name = name.trim();  // Удаляем лишние пробелы
     if (!name) return;
     
     this.heroService.addHero({ name } as Hero).subscribe(() => {

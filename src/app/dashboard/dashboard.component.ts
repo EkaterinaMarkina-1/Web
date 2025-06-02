@@ -12,6 +12,9 @@ import { FormBuilder, FormGroup } from '@angular/forms';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DashboardComponent {
+  // Создание Observable-потока heroes$ для хранения списка героев
+  // pipe() добавляет операторы для преобразования потока
+  // map() берет массив всех героев и возвращает только элементы с 1 по 4 индекс (2-5 героев)
   heroes$: Observable<Hero[]> = this.heroService.getHeroes().pipe(
     map((heroes: Hero[]) => heroes.slice(1, 5))
       );
