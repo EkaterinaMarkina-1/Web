@@ -1,83 +1,65 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-
-import { Hero } from '../hero';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { HeroService } from '../hero.service';
+import { Hero } from '../hero';
+import { Observable, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-hero-detail',
   templateUrl: './hero-detail.component.html',
-  styleUrls: ['./hero-detail.component.css']
+  styleUrls: ['./hero-detail.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class HeroDetailComponent implements OnInit {
-  // Форма будет инициализирована позже (знак ! говорит TypeScript, что мы гарантируем это)
-  heroForm!: FormGroup;
-  // Текущий герой, данные которого редактируем
-  hero!: Hero;
-  hasExtendedProperties: boolean = false; // Флаг, есть ли доп. свойства
+export class HeroDetailComponent {
+  hero$: Observable<Hero>;
+  heroForm: FormGroup;
 
   constructor(
     private route: ActivatedRoute,
     private heroService: HeroService,
     private location: Location,
     private fb: FormBuilder
-  ) {}
+  ) {
+    this.heroForm = this.fb.group({
+      name: [''],
+      power: [''],
+      level: [''],
+      health: [''],
+      attack: [''],
+      defense: ['']
+    });
 
-  ngOnInit(): void {
-    // При инициализации компонента загружаем данные героя
-    this.getHero();
+    this.hero$ = this.route.paramMap.pipe(
+      switchMap(params => {
+        const id = Number(params.get('id'));
+        return this.heroService.getHero(id);
+      })
+    );
+
+    this.hero$.subscribe(hero => {
+      this.heroForm.patchValue({
+        name: hero.name,
+        power: hero.power || '',
+        level: hero.level || '',
+        health: hero.health || '',
+        attack: hero.attack || '',
+        defense: hero.defense || ''
+      });
+    });
   }
 
-  getHero(): void {
-    // Получаем ID героя из параметров маршрута
-    const idParam = this.route.snapshot.paramMap.get('id');
-    // Защита от отсутствия ID в URL
-    if (!idParam) {
-      console.error('ID is missing in URL');
-      this.goBack();
-      return;
-    }
-
-    // Конвертируем строковый ID в число
-    const id = +idParam;
-    this.heroService.getHero(id).subscribe(hero => {
-      this.hero = hero;
-      // Проверяем, есть ли у героя расширенные свойства
-      // (проверяем наличие хотя бы одного свойства, например 'power')
-      this.hasExtendedProperties = 'power' in hero;
-
-      if (this.hasExtendedProperties) {
-        this.heroForm = this.fb.group({
-          name: [hero.name, Validators.required],
-          power: [hero.power, Validators.required],
-          level: [hero.level, [Validators.required, Validators.min(1)]],
-          health: [hero.health, [Validators.required, Validators.min(1)]],
-          attack: [hero.attack, [Validators.required, Validators.min(1)]],
-          defense: [hero.defense, [Validators.required, Validators.min(1)]]
-        });
-      } else {
-        this.heroForm = this.fb.group({
-          name: [hero.name, Validators.required]
-        });
-      }
-    });
+  save(): void {
+    this.hero$.pipe(
+      switchMap(hero => {
+        const updatedHero = { ...hero, ...this.heroForm.value };
+        return this.heroService.updateHero(updatedHero);
+      })
+    ).subscribe(() => this.goBack());
   }
 
   goBack(): void {
     this.location.back();
-  }
-
-  save(): void {
-    if (this.heroForm.valid) {
-      const updatedHero = {
-        ...this.hero,
-        ...this.heroForm.value
-      };
-      
-      this.heroService.updateHero(updatedHero)
-        .subscribe(() => this.goBack());
-    }
   }
 }

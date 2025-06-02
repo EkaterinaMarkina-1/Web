@@ -1,35 +1,41 @@
-<div *ngIf="hero">
-  <h2>{{hero.name | uppercase}} Details</h2>
+<div *ngIf="hero$ | async as hero">
+  <h2>{{ hero.name | uppercase }} Details</h2>
   <form [formGroup]="heroForm" (ngSubmit)="save()">
     <div>
       <label for="name">Hero name: </label>
-      <input id="name" formControlName="name" placeholder="Name">
+      <input id="name" formControlName="name" placeholder="name" />
     </div>
 
-    <div *ngIf="hasExtendedProperties">
+    <!-- Показываем дополнительные поля только для Dr. Nice (id=11) -->
+    <div *ngIf="hero.id === 11">
       <div>
         <label for="power">Power: </label>
-        <input id="power" formControlName="power" placeholder="Power">
+        <input id="power" formControlName="power" />
       </div>
+
       <div>
         <label for="level">Level: </label>
-        <input id="level" type="number" formControlName="level" placeholder="Level">
+        <input id="level" type="number" formControlName="level" />
       </div>
+
       <div>
         <label for="health">Health: </label>
-        <input id="health" type="number" formControlName="health" placeholder="Health">
+        <input id="health" type="number" formControlName="health" />
       </div>
+
       <div>
         <label for="attack">Attack: </label>
-        <input id="attack" type="number" formControlName="attack" placeholder="Attack">
+        <input id="attack" type="number" formControlName="attack" />
       </div>
+
       <div>
         <label for="defense">Defense: </label>
-        <input id="defense" type="number" formControlName="defense" placeholder="Defense">
+        <input id="defense" type="number" formControlName="defense" />
       </div>
     </div>
 
     <button type="submit" [disabled]="!heroForm.valid">Save</button>
   </form>
-  <button (click)="goBack()">Go Back</button>
+
+  <button (click)="goBack()">Go back</button>
 </div>
