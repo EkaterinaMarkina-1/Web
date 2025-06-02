@@ -1,6 +1,11 @@
 export interface Hero {
   id: number;
   name: string;
+  power?: string;       // сила 
+  level?: number;       // уровень 
+  health?: number;      // здоровье 
+  attack?: number;      // атака 
+  defense?: number;     // защита 
 }
 
 
