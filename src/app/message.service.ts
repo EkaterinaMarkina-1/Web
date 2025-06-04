@@ -1,21 +1,18 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class MessageService {
-  messages: string[] = [];
+  private messagesSubject = new BehaviorSubject<string[]>([]);
+  messages$ = this.messagesSubject.asObservable();
+
 
   add(message: string) {
-    this.messages.push(message);
+    const current = this.messagesSubject.value;
+    this.messagesSubject.next([...current, message]);
   }
 
   clear() {
-    this.messages = [];
+    this.messagesSubject.next([]);
   }
 }
-
-
-/*
-Copyright Google LLC. All Rights Reserved.
-Use of this source code is governed by an MIT-style license that
-can be found in the LICENSE file at https://angular.io/license
-*/

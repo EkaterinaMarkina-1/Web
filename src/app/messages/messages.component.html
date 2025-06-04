@@ -1,16 +1,13 @@
-<div *ngIf="messageService.messages.length">
-
-  <h2>Messages</h2>
-  <button type="button"
-          class="clear"
-          (click)="messageService.clear()">Clear messages</button>
-  <div *ngFor='let message of messageService.messages'> {{message}} </div>
-
+<div *ngIf="(messages$ | async)?.length as messagesCount">Add commentMore actions
+  <h2>Messages ({{messagesCount}})</h2>
+  
+  <button type="button" 
+          class="clear" 
+          (click)="messageService.clear()">
+    Clear messages
+  </button>
+  
+  <div *ngFor="let message of messages$ | async">
+    {{message}}
+  </div>
 </div>
-
-
-<!-- 
-Copyright Google LLC. All Rights Reserved.
-Use of this source code is governed by an MIT-style license that
-can be found in the LICENSE file at https://angular.io/license
--->

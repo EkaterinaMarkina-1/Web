@@ -4,7 +4,8 @@ import { Location } from '@angular/common';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { HeroService } from '../hero.service';
 import { Hero } from '../hero';
-import { Observable, switchMap } from 'rxjs';
+import { Observable, switchMap, tap } from 'rxjs';
+import { MessageService } from '../message.service';
 
 @Component({
   selector: 'app-hero-detail',
@@ -20,6 +21,7 @@ export class HeroDetailComponent {
     private route: ActivatedRoute,
     private heroService: HeroService,
     private location: Location,
+    private messageService: MessageService,
     private fb: FormBuilder
   ) {
     // Инициализация формы с пустыми значениями
@@ -31,15 +33,14 @@ export class HeroDetailComponent {
       attack: [''],
       defense: ['']
     });
-
      // Создание потока hero$ на основе параметров маршрута
-     this.hero$ = this.route.paramMap.pipe(
-      // switchMap отменяет предыдущий запрос при новом ID
+    this.hero$ = this.route.paramMap.pipe(
       switchMap(params => {
-        // Получаем ID героя из параметров маршрута
         const id = Number(params.get('id'));
         // Запрашиваем героя по ID
-        return this.heroService.getHero(id);
+        return this.heroService.getHero(id).pipe(
+          tap(hero => this.messageService.add(`HeroService: fetched hero id=${id}`))
+        );
       })
     );
 
@@ -60,6 +61,7 @@ export class HeroDetailComponent {
   save(): void {
     this.hero$.pipe(
       switchMap(hero => {
+        this.messageService.add(`HeroService: updated hero id=${hero.id}`);
         const updatedHero = { ...hero, ...this.heroForm.value };
         return this.heroService.updateHero(updatedHero);
       })
